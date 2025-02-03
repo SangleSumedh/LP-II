@@ -92,3 +92,48 @@ class Puzzle:
 
 puzzle = Puzzle()
 puzzle.solve()
+
+
+# Output
+
+# Enter initial state
+# Enter state.
+# 0 represents blank tile
+# 1 2 3 
+# 0 4 6
+# 7 5 8
+# Enter goal state
+# Enter state.
+# 0 represents blank tile
+# 1 2 3
+# 4 5 6
+# 7 8 0
+
+# START
+# g(x) = 0
+# h(x) = 4
+# f(x) = 4
+# 1 2 3 
+# 0 4 6 
+# 7 5 8 
+
+# g(x) = 1
+# h(x) = 3
+# f(x) = 4
+# 1 2 3 
+# 4 0 6 
+# 7 5 8 
+
+# g(x) = 2
+# h(x) = 2
+# f(x) = 4
+# 1 2 3 
+# 4 5 6 
+# 7 0 8 
+
+# g(x) = 3
+# h(x) = 0
+# f(x) = 3
+# 1 2 3 
+# 4 5 6 
+# 7 8 0 
