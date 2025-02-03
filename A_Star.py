@@ -1,94 +1,109 @@
-from typing import List
-from copy import deepcopy
 
-class Node:
-    def __init__(self,matrix : List[List[int]], g_x : int,goal: List[List[int]]) -> None:
-        self.matrix = matrix
-        self.g_x = g_x
-        self.h_x = 0
-        self.f_x = 0
-        self.goal = goal
-        self.n = 3
-        self.calculate_h_x()
-        self.calculate_f_x()
+def accept(n):
+""" Accepts the puzzle from the user """ puz = []
+for i in range(n):
+puz.append([val for val in input().split()]) return puz
 
-    def locateZero(self):
-        for i,row in enumerate(self.matrix):
-            for j,ele in enumerate(row):
-                if ele == 0:
-                    return (i,j)
-    
-    def generateChildren(self):
-        x,y = self.locateZero()
-        possible = [
-            (x+1,y),
-            (x,y+1),
-            (x-1,y),
-            (x,y-1)
-        ]
-        children : List[Node] = []
-        for i,j in possible:
-            if i >= 0 and i < self.n and j >= 0 and j < self.n:
-                child = deepcopy(self.matrix)
-                child[x][y], child[i][j] = child[i][j], child[x][y]
-                children.append(Node(child,self.g_x + 1,self.goal))
-        return children
-    
-    def calculate_h_x(self):
-        for i in range(self.n):
-            for j in range(self.n):
-                if self.goal[i][j] != self.matrix[i][j]:
-                    self.h_x += 1
-        
-    def calculate_f_x(self):
-        self.f_x = self.g_x + self.h_x
-    
-    def printNode(self):
-        print(f"g(x) = {self.g_x}")
-        print(f"h(x) = {self.h_x}")
-        print(f"f(x) = {self.f_x}")
-        for i,row in enumerate(self.matrix):
-            for j,ele in enumerate(row):
-                print(ele,end=" ")
-            print()
-        print()
-
-class Puzzle:
-    def __init__(self) -> None:
-        self.visited : List[Node] = []
-        self.expanded : List[Node] = []
-        self.n = 3
-        self.initial = [[] for _ in range(self.n)]
-        self.goal = [[] for _ in range(self.n)]
-    
-    def input(self, variable):
-        print("Enter state.\n0 represents blank tile")
-        for i in range(self.n):
-            variable[i] = [int(j) for j in input().split(" ")]
-    
-    def solve(self):
-        matrices= []
-        print("Enter initial state")
-        self.input(self.initial)
-        print("Enter goal state")
-        self.input(self.goal)
-        print("\nSTART")
-        current = Node(self.initial,0,self.goal)
-        matrices.append(current.matrix)
-        self.expanded.append(current)
-        while True:
-            current = self.expanded.pop(0)
-            if current.h_x == 0:
-                break
-            current.printNode()
-            for child in current.generateChildren():
-                if child.matrix not in matrices:
-                    matrices.append(child.matrix)
-                    self.expanded.append(child)
-            self.visited.append(current)
-            self.expanded.sort(key=lambda x : x.f_x,reverse=False)
-        current.printNode()
+def print_board(board,n): for i in range(n):
+print()
+for j in range(n):
+print(board[i][j],end=' ')
 
 
-puzzle = Puzzle()
-puzzle.solve()
+#Find the position of blank space def find_space(Current,n):
+for blank_row_pos in range(n):
+for blank_col_pos in range(n):
+if Current[blank_row_pos][blank_col_pos]=='_': return blank_row_pos,blank_col_pos
+
+
+#Copy the current node to new node for shuffling the blank space and create a new configuration       def copy_current(Current):
+temp=[]
+for i in range(len(Current)): row=[]
+for val in Current[i]:
+row.append(val) temp.append(row)
+return(temp)
+
+#Move the blank space in given direction, if out of range return None
+
+def shuffle(Current,brow_pos,bcol_pos,move_x,move_y):
+if move_x >= 0 and move_x < len(Current) and move_y >= 0 and move_y < len(Current): temp=[]
+
+temp=copy_current(Current) change=temp[move_x][move_y] temp[move_x][move_y]=temp[brow_pos][bcol_pos] temp[brow_pos][bcol_pos]=change
+return temp
+else:
+return None
+
+#Function to calculate g_score: the number of nodes traversed from a start node to get to the current node def g_score(Node):
+
+return Node[1] #Node=[Board,level,fscore]
+
+
+#Function to calculate h_score: the number of misplaced tiles by comparing the current state and the goal state
+def h_score(Current,Goal,n): hscore=0
+for i in range(n):
+for j in range(n):
+if (Current[i][j] != Goal[i][j]) and (Current[i][j]!='_'): hscore +=1
+
+return hscore
+
+#Function to calculate f_Score= g_score + h_Score def f_score(Node,Goal,n):
+Current=Node[0]
+return g_score(Node) + h_score(Current,Goal,n)
+
+#Generate the child nodes by moving the blank in any four direction (up,down,left,right) def move_gen(Node,Goal,n):
+
+
+Current=Node[0] level=Node[1] fscore=0
+row,col=find_space(Current,n)
+move_positions=[[row,col-1],[row,col+1],[row-1,col],[row+1,col]] #left,right,up,down
+
+children=[] #List of child nodes of current node
+for move in move_positions: child=shuffle(Current,row,col,move[0],move[1]) if child is not None:
+cNode=[child,0,0] #Dummy node for calculating f_Score fscore=f_score(cNode,Goal,n)
+
+Node=[child,level+1,fscore] children.append(Node)
+print("\n\n The Children ::",children) return children
+
+#Function goal_test to see the goal configuration is reached def goal_test(Current,Goal,n):
+if h_score(Current,Goal,n) == 0: return True
+else:
+return False
+
+#Function to Sort OPEN based on f_score def sort(L):
+L.sort(key = lambda x: x[2],reverse=False) return L
+
+#Function for starting the Game def play_game(Start, Goal, n):
+#when game starts
+fscore=0 #fscore initialized to zero gscore=0 #gscore initialized to zero
+level=0 #the start configuration is root node s at level-0 of the state space tree '''
+print_board(Start,n); print_board(Goal,n) print("\n\nI AM HERE !!!\n\n") '''
+Node=[Start,level,fscore] fscore=f_score(Node,Goal,n)
+
+#Every Node is [board configuration ,level,gscore] Node = [Start,level,fscore] # current node is Start node print("\nThe Node is=\n",Node)
+OPEN = [] #OPEN list as frontier CLOSED = [] #CLOSED as explored OPEN.append(Node)
+levelcount=0
+
+#Explored the current node to reach to the Goal configuration while True:
+N=OPEN[0] #first node of open
+del OPEN[0] # delete first node of open
+
+
+
+Current=N[0] #Extract board configuration print("\n\n The current configuration is ::",Current)
+CLOSED.append(N)
+#if goal configuration is reached terminate if goal_test(Current,Goal,n) == True:
+print("\nGoal reached!!") print("CLOSED=",CLOSED)
+ break
+
+CHILD=move_gen(N,Goal,n) #print("\n\n The CHILD is ::",CHILD) OPEN=[]
+for child in CHILD:
+OPEN.append(child)
+#sort the OPEN list based on fscore value of each node sort(OPEN)
+#print("\n\n The OPEN is ::",OPEN)
+
+#Drive Code
+n=int(input("Enter the board size:"))
+print("\nEnter Start Configuration of board") Start=accept(n)
+print("\nEnter Goal Configuration of board") Goal=accept(n)
+play_game(Start, Goal, n)
+
